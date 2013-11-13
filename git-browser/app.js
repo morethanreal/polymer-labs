@@ -10,14 +10,13 @@ var http = require('http');
 var path = require('path');
 var io = require('socket.io');
 var fs = require('fs');
+var chokidar = require('chokidar');
 
 var root = process.argv[2];
 if (!root) {
 	throw 'Usage: node app.js <path-to-directory>';
 }
-console.log('root', root);
 root = path.resolve(root);
-console.log('root', root);
 
 var app = express();
 
@@ -31,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/components', express.static(path.join(__dirname, 'components')));
 
 // development only
 if ('development' == app.get('env')) {
@@ -50,14 +49,19 @@ webserver.listen(app.get('port'), function(){
 server = io.listen(webserver);
 
 server.sockets.on('connection', function(socket) {
-	console.log('hello world!');
-	socket.emit('news', {hello: 'world!'});
+	console.log('connected');
 
-	var watcher = fs.watch(root);
-	console.log('watching', root);
-	console.log(watcher);
-	watcher.on('change', function(event, filename) {
-		console.log('watch', event, filename);
-		socket.emit('kjsadhkjasd');
+	function on_file_change(e, filename) {
+		socket.emit('change', filename);
+	}
+
+	var watcher = chokidar.watch(root, {
+		ignored: /\.git|node_modules/,
+		ignoreInitial: true,
+		persistent: true
 	});
+	watcher.on('add', on_file_change.bind(this, 'add'));
+	watcher.on('change', on_file_change.bind(this, 'change'));
+	watcher.on('unlink', on_file_change.bind(this, 'unlink'));
 });
+

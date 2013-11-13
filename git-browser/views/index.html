@@ -2,7 +2,7 @@
 <html>
 <head>
 	<script src="/socket.io/socket.io.js"></script>
-	<script src="http://www.polymer-project.org/polymer.min.js"></script>
+	<script src="/components/polymer.min.js"></script>
 </head>
 <body>
 	<polymer-element name="repo-list">
@@ -64,8 +64,8 @@
 				repos: ##REPOS##,
 				ready: function() {
 					this.socket = io.connect('http://localhost');
-					this.socket.on('news', function(data) {
-						console.log('got news', data);
+					this.socket.on('change', function(data) {
+						window.location.reload();
 					});
 				},
 				toggleAction: function(e, detail, sender) {
