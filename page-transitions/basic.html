@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+	<style>
+		body {
+			font-family: 'Helvetiva Neue', HelveticaNeue, Helvetica, sans-serif;
+		}
+		.animated-pages {
+			display: block;
+			height: 100%;
+		}
+		.animated-pages > div {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			display: -webkit-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 100px;
+			color: white;
+			visibility: hidden;
+			-webkit-transform: translate3d(0,0,0);
+		}
+		.animated-pages > div.selected {
+			visibility: visible;
+		}
+	  .grid {
+      background: red;
+    }
+    .brick {
+      background: green;
+    }
+    .wave {
+      background: orange;
+    }
+    .dots {
+      background: purple;
+    }
+    .diamonds {
+      background: blue;
+    }
+    .pattern .grid {
+      background: red url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAX/GZH4/4FsRpgAmAOSBBFwDkgAAIKuBATRTAAZAAAAAElFTkSuQmCC) repeat;
+    }
+    .pattern .brick {
+      background: green url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAJElEQVQIW2NkwAT/GdHE/gP5jMiCYAGQIpggTACuEq4CatR/ABtJBwTL3L3TAAAAAElFTkSuQmCC) repeat;
+    }
+    .pattern .wave {
+      background: orange url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAAPklEQVQYV2NkwAT/gUKM6MLoAjBFGIqRFaJLovBhCrFaB7QeLg5SiEsRzJlgeQxHY/EcSOg/sQoxgwGHiQwA+f4KCL3Y/AQAAAAASUVORK5CYII=) repeat;
+    }
+    .pattern .dots {
+      background: purple url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGklEQVQIW2NkYGD4D8SMQAwGcAY2AbBKDBUAVuYCBQPd34sAAAAASUVORK5CYII=) repeat;
+    }
+    .pattern .diamonds {
+      background: blue url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAUElEQVQYV2NkYGAwBuKzQAwDID4IoIgxIikAMZE1oRiArBDdZBSNMIXoJiFbDZYDKcSmCOYimDuNSVKIzRNYrUYOFuQgweoZbIoxgoeoAAcAEckW11HVTfcAAAAASUVORK5CYII=) repeat;
+    }
+  </style>
+</head>
+<body>
+	<div class="animated-pages">
+    <div class="grid selected">One</div>
+    <div class="brick">Two</div>
+    <div class="wave">Three</div>
+    <div class="dots">Four</div>
+    <div class="diamonds">Five</div>
+	</div>
+</body>
+</html>
