@@ -102,6 +102,7 @@ license that can be found in the LICENSE file.
             background: blue url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAUElEQVQYV2NkYGAwBuKzQAwDID4IoIgxIikAMZE1oRiArBDdZBSNMIXoJiFbDZYDKcSmCOYimDuNSVKIzRNYrUYOFuQgweoZbIoxgoeoAAcAEckW11HVTfcAAAAASUVORK5CYII=) repeat;
           }
         </style>
+        <!--
         <polymer-ui-toolbar>
           <button on-tap="{{rewindAction}}">&laquo;</button>
           <button on-tap="{{forwardAction}}">&raquo;</button>
@@ -142,6 +143,7 @@ license that can be found in the LICENSE file.
             <input value="{{duration}}" size="4">
           </label>
         </polymer-ui-toolbar>
+        -->
         <polymer-ui-animated-pages selected="{{page}}" directional?="{{directional}}" transition="{{transition}}" on-polymer-pages-animation-end="{{animationEndAction}}" tabIndex="-1" on-keydown="{{keyAction}}">
           <div class="grid" value="one">One</div>
           <div class="brick" value="two">Two</div>
@@ -207,10 +209,12 @@ license that can be found in the LICENSE file.
           },
           makeTransition: function() {
             if (!this.transitionIsString) {
-              var transitionInId = this.$.transitionInSelect.selectedOptions[0].textContent;
-              var transitionIn = this.$[transitionInId];
-              var transitionOutId = this.$.transitionOutSelect.selectedOptions[0].textContent;
-              var transitionOut = this.$[transitionOutId];
+              // var transitionInId = this.$.transitionInSelect.selectedOptions[0].textContent;
+              // var transitionIn = this.$[transitionInId];
+              // var transitionOutId = this.$.transitionOutSelect.selectedOptions[0].textContent;
+              // var transitionOut = this.$[transitionOutId];
+              var transitionIn = this.$['hslide-in'];
+              var transitionOut = this.$['hslide-out'];
               if (transitionIn && transitionOut) {
                 var transition = document.createElement('polymer-animation-group');
                 transition.appendChild(transitionOut.cloneNode(true));
