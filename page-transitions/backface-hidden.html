@@ -10,14 +10,14 @@ license that can be found in the LICENSE file.
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <!-- load toolkit -->
-    <script src="../../polymer/polymer.min.js"></script>
+    <script src="../../components/platform/platform.js"></script>
     <!-- import elements-->
-    <link rel="import" href="../../polymer/polymer-elements/polymer-animation/polymer-animation.html">
-    <link rel="import" href="../../polymer/polymer-elements/polymer-animation/polymer-animation-group.html">
-    <link rel="import" href="../../polymer/polymer-ui-elements/polymer-ui-toolbar/polymer-ui-toolbar.html">
-    <link rel="import" href="../../polymer/polymer-ui-elements/polymer-ui-animated-pages/polymer-ui-animated-pages.html">
+    <link rel="import" href="../../components/polymer-animation/polymer-animation.html">
+    <link rel="import" href="../../components/polymer-animation/polymer-animation-group.html">
+    <link rel="import" href="../../components/polymer-ui-toolbar/polymer-ui-toolbar.html">
+    <link rel="import" href="../../components/polymer-ui-animated-pages/polymer-ui-animated-pages.html">
     <!-- -->
-    <link rel="stylesheet" href="../../polymer/polymer-ui-elements/basic.css">
+    <link rel="stylesheet" href="../../components/polymer-ui-elements/basic.css">
     <style>
       polymer-ui-animated-pages-demo {
         display: block;
@@ -85,6 +85,21 @@ license that can be found in the LICENSE file.
           }
           .diamonds {
             background: blue;
+          }
+          .pattern .grid {
+            background: red url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQIW2NkQAX/GZH4/4FsRpgAmAOSBBFwDkgAAIKuBATRTAAZAAAAAElFTkSuQmCC) repeat;
+          }
+          .pattern .brick {
+            background: green url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAJElEQVQIW2NkwAT/GdHE/gP5jMiCYAGQIpggTACuEq4CatR/ABtJBwTL3L3TAAAAAElFTkSuQmCC) repeat;
+          }
+          .pattern .wave {
+            background: orange url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAAPklEQVQYV2NkwAT/gUKM6MLoAjBFGIqRFaJLovBhCrFaB7QeLg5SiEsRzJlgeQxHY/EcSOg/sQoxgwGHiQwA+f4KCL3Y/AQAAAAASUVORK5CYII=) repeat;
+          }
+          .pattern .dots {
+            background: purple url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGklEQVQIW2NkYGD4D8SMQAwGcAY2AbBKDBUAVuYCBQPd34sAAAAASUVORK5CYII=) repeat;
+          }
+          .pattern .diamonds {
+            background: blue url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAUElEQVQYV2NkYGAwBuKzQAwDID4IoIgxIikAMZE1oRiArBDdZBSNMIXoJiFbDZYDKcSmCOYimDuNSVKIzRNYrUYOFuQgweoZbIoxgoeoAAcAEckW11HVTfcAAAAASUVORK5CYII=) repeat;
           }
         </style>
         <polymer-ui-toolbar>
