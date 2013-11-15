@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+  <script src="../../components/web-animations-js/web-animations.js"></script>
 	<style>
 		body {
 			font-family: 'Helvetiva Neue', HelveticaNeue, Helvetica, sans-serif;
@@ -59,12 +60,59 @@
   </style>
 </head>
 <body>
-	<div class="animated-pages">
+	<div class="animated-pages pattern" tabindex="0">
     <div class="grid selected">One</div>
     <div class="brick">Two</div>
     <div class="wave">Three</div>
     <div class="dots">Four</div>
     <div class="diamonds">Five</div>
 	</div>
+  <script>
+    function animate(from, to, reverse) {
+      if (!from || !to) {
+        return;
+      }
+      var animation = new ParGroup([
+        new Animation(from, [{'visibility':'visible'}]),
+        new Animation(to, [{'visibility':'visible'}]),
+        new Animation(from, [
+          {'transform': 'translate3d(0,0,0)'},
+          {'transform': reverse ? 'translate3d(100%,0,0)' : 'translate3d(-100%,0,0)'}
+        ], {duration: 1}),
+        new Animation(to, [
+          {'transform': reverse ? 'translate3d(-100%,0,0)' : 'translate3d(100%,0,0)'},
+          {'transform': 'translate3d(0,0,0)'}
+        ], {duration: 1})
+      ]);
+      document.timeline.play(animation);
+      setTimeout(function() {
+        from.classList.toggle('selected');
+        to.classList.toggle('selected');
+      });
+    }
+
+    function rewindAction() {
+      var selected = document.querySelector('.animated-pages > div.selected');
+      animate(selected, selected.previousElementSibling, true);
+    }
+
+    function forwardAction() {
+      var selected = document.querySelector('.animated-pages > div.selected');
+      animate(selected, selected.nextElementSibling, false);
+    }
+
+    function keyAction(e) {
+      if (e.keyCode === 37) {
+        rewindAction();
+      } else if (e.keyCode === 39) {
+        forwardAction();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.animated-pages').focus();
+      document.querySelector('.animated-pages').addEventListener('keydown', keyAction);
+    });
+  </script>
 </body>
 </html>
