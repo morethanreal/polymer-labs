@@ -15,6 +15,10 @@
 					border: 1px solid black;
 					font-size: 0.9em;
 				}
+				.loading {
+					color: white;
+					background: black;
+				}
 				span.name.needpush, span.name.dirty {
 					color: red;
 				}
@@ -42,9 +46,12 @@
 				+ = Has untracked files<br>
 				Click for git status
 			</div>
+			<div class="loading" hidden?="{{repos.length > 0}}">
+				Loading...
+			</div>
 			<template repeat="{{repos}}">
 				<div on-tap="{{toggleAction}}">
-					<span class="name {{ {needpush: ahead > 0, dirty: !clean} | tokenList}}">{{name}}</span>
+					<span class="name {{ {needpush: ahead > 0, dirty: !clean} | tokenList}}">{{path}}</span>
 					<template if="{{!clean}}">*</template>
 					<template if="{{untracked}}">+</template>
 					<template if="{{ahead > 0 || behind > 0}}">
@@ -60,13 +67,32 @@
 		</template>
 		<script>
 			Polymer('repo-list', {
+				loading: true,
 				root: ##ROOT##,
-				repos: ##REPOS##,
+				repos: [],
 				ready: function() {
 					this.socket = io.connect('http://localhost');
-					this.socket.on('change', function(data) {
-						window.location.reload();
-					});
+					this.socket.on('status', this.statusAction.bind(this));
+					this.socket.emit('scan', {root: this.root});
+				},
+				statusAction: function(status) {
+					if (Array.isArray(status)) {
+						this.repos = status;
+					} else {
+						var found = false;
+						for (var i = 0, r; r = this.repos[i]; i++) {
+							if (r.path === status.path) {
+								for (key in status) {
+									r[key] = status[key];
+								}
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							this.repos.push(status);
+						}
+					}
 				},
 				toggleAction: function(e, detail, sender) {
 					var model = sender.templateInstance.model;

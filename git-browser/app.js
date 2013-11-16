@@ -4,13 +4,13 @@
  */
 
 var express = require('express');
+var http = require('http');
+var io = require('socket.io');
+var path = require('path');
+
+var repos = require('./lib/repos');
 var routes = require('./routes');
 var user = require('./routes/user');
-var http = require('http');
-var path = require('path');
-var io = require('socket.io');
-var fs = require('fs');
-var chokidar = require('chokidar');
 
 var root = process.argv[2];
 if (!root) {
@@ -46,22 +46,17 @@ webserver.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
+var repo_watcher = repos.watch(root);
+
 server = io.listen(webserver);
 
 server.sockets.on('connection', function(socket) {
 	console.log('connected');
-
-	function on_file_change(e, filename) {
-		socket.emit('change', filename);
-	}
-
-	var watcher = chokidar.watch(root, {
-		ignored: /\.git|node_modules/,
-		ignoreInitial: true,
-		persistent: true
+	socket.on('scan', function(data) {
+		var all = repos.scan(data.root);
+		socket.emit('status', all);
+		repo_watcher.on('repo_status', function(status) {
+			socket.emit('status', status);
+		});
 	});
-	watcher.on('add', on_file_change.bind(this, 'add'));
-	watcher.on('change', on_file_change.bind(this, 'change'));
-	watcher.on('unlink', on_file_change.bind(this, 'unlink'));
 });
-
