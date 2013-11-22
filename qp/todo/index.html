@@ -49,34 +49,37 @@
 					{value: 'Biscuit', completed: true},
 					{value: 'Jellybean', completed: true}
 				],
-				findOverlapItem: function(item, e, down) {
-					var orect = item.getBoundingClientRect();
-					var overlap = item.nextElementSibling;
-					var obottom = orect.bottom + e.dy;
-					while (overlap) {
-						var rect = overlap.getBoundingClientRect();
-						console.log(overlap.textContent, rect.top, rect.bottom);
-						console.log('original', obottom, 'next', rect.top, rect.bottom);
-						if (obottom > rect.top && obottom < rect.bottom) {
-							break;
-						}
-						overlap = overlap.nextElementSibling;
-					}
-					console.log('overlap rect', overlap && overlap.getBoundingClientRect().top);
-					return overlap;
-				},
 				itemDragStartAction: function(e, details, sender) {
 					sender.classList.add('dragging');
+					this.extraOffs = 0;
+					this.dropTarget = null;
 				},
 				itemDragAction: function(e, details, sender) {
-					var dropTarget = this.findOverlapItem(sender, details);
-					if (dropTarget) {
-						dropTarget.transform('translateY(-' + details.dy + 'px)');
+					var dy = details.dy;
+					var down = dy !== 0 ? dy > 0 : this.dragDown;
+					var orect = sender.getBoundingClientRect();
+					var edge = down ? (orect.bottom + dy) : (orect.top + dy);
+					var dragOverItem = sender;
+					while (dragOverItem = down ? dragOverItem.nextElementSibling : dragOverItem.previousElementSibling) {
+						var rect = dragOverItem.getBoundingClientRect();
+						var extra = down ? (rect.top - orect.bottom) : (rect.bottom - orect.top);
+						if (rect.width && rect.height && edge > rect.top && edge < rect.bottom) {
+							this.dropTarget = dragOverItem;
+							dragOverItem.transform({
+								translate: 'translateY(' + (-1 * (dy - extra)) + 'px)'
+							})
+							break;
+						}
 					}
+					this.dragDown = down;
 				},
 				itemDropAction: function(e, details, sender) {
-					var dropTarget = this.findOverlapItem(sender, details);
 					sender.classList.remove('dragging');
+					this.resetItemTransform();
+					if (this.dropTarget) {
+						this.dropItem(sender, this.dropTarget);
+						sender.templateInstance.model.completed = this.dropTarget.templateInstance.model.completed;
+					}
 					// registerLayoutKeyframes('default', [{
 					// 	offset: 0,
 					// 	properties: {
@@ -97,10 +100,21 @@
 					// var els = this.querySelectorAll('li');
 					// setLayoutTransition(els, 'default', 1);
 					// setLayoutEffect(els, 'transform');
-					// console.log('drop', sender, dropTarget, details.dy);
-					// transitionThis(function() {
-					// 	sender.parentElement.insertBefore(sender, dropTarget.nextSibling);
+					// if (dropTarget) {
+					// 	transitionThis(function() {
 					// });
+					// }
+				},
+				resetItemTransform: function() {
+					Array.prototype.forEach.call(this.shadowRoot.querySelectorAll('li'), function(item) {
+						item.transform({translate: ''});
+					});
+				},
+				dropItem: function(item, ref) {
+					var index = this.items.indexOf(item.templateInstance.model);
+					this.items.splice(index, 1);
+					var refIndex = this.items.indexOf(ref.templateInstance.model);
+					this.items.splice(this.dragDown ? refIndex + 1 : refIndex, 0, item.templateInstance.model);
 				}
 			});
 		</script>
