@@ -1,0 +1,48 @@
+<polymer-element name="todo-item" extends="li" attributes="completed">
+	<template>
+		<style>
+			#draggable {
+				background: white;
+				-webkit-user-select: none;
+				padding: 16px;
+/*				transition-timing-function: cubic-bezier(0.3, 0.6, 0.1, 1);
+				transition: -webkit-transform 0.2s;
+*/			}
+			:host([completed]) #draggable {
+				font-style: italic;
+				text-decoration: line-through;
+				color: rgba(0, 0, 0, 0.15);
+			}
+			#draggable.dragging {
+				box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.15);
+				-webkit-transform: scale(1.03);
+			}
+		</style>
+		<div id="draggable" on-pointerdown="{{pointerdownAction}}" on-pointerup="{{pointerupAction}}" on-trackstart="{{trackstartAction}}" on-track="{{trackAction}}" on-trackend="{{trackendAction}}">
+			<content></content>
+		</div>
+	</template>
+	<script>
+		Polymer('todo-item', {
+			pointerdownAction: function() {
+				this.$.draggable.classList.add('dragging');
+			},
+			pointerupAction: function() {
+				this.$.draggable.classList.remove('dragging');
+			},
+			trackstartAction: function() {
+				this.fire('todo-item-drag-start');
+			},
+			trackAction: function(e) {
+				console.log('track', e);
+				this.$.draggable.style['-webkit-transform'] = 'translateY(' + e.dy + 'px) scale(1.03)';
+				this.fire('todo-item-drag', e);
+			},
+			trackendAction: function(e) {
+				console.log('trackend', e);
+				this.$.draggable.style['-webkit-transform'] = null;
+				this.fire('todo-item-drop', e);
+			}
+		});
+	</script>
+</polymer-element>

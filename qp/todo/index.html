@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+	<link href="components/polymer-animation/web-animations.html" rel="import">
+	<link href="components/polymer-ui-icon-button/polymer-ui-icon-button.html" rel="import">
+	<link href="components/polymer-ui-toolbar/polymer-ui-toolbar.html" rel="import">
+	<link href="todo-item.html" rel="import">
+	<script src="components/platform/platform.js"></script>
+	<link href="components/polymer-ui-elements/basic.css" rel="stylesheet">
+	<script src="../../layoutAnimation/layout-animation.js"></script>
+</head>
+<body class="polymer-ui-full-bleed polymer-ui-light-bg polymer-ui-body-text">
+	<polymer-element name="todo-app">
+		<template>
+			<style>
+				polymer-ui-toolbar {
+					padding: 8px;
+				}
+				ul {
+					list-style-type: none;
+					-webkit-margin-before: 0;
+					-webkit-margin-after: 0;
+					-webkit-margin-start: 0;
+					-webkit-margin-end: 0;
+					-webkit-padding-start: 0;
+				}
+				li.dragging {
+					position: relative;
+					z-index: 10;
+				}
+			</style>
+			<polymer-ui-toolbar>
+				<polymer-ui-icon-button icon="menu"></polymer-ui-icon-button>
+				<div flex>Todos</div>
+			</polymer-ui-toolbar>
+			<ul>
+				<template repeat="{{items}}">
+					<li is="todo-item" completed?="{{completed}}" on-todo-item-drag-start="{{itemDragStartAction}}" on-todo-item-drag="{{itemDragAction}}" on-todo-item-drop="{{itemDropAction}}">{{value}}</li>
+				</template>
+			</ul>
+		</template>
+		<script>
+			Polymer('todo-app', {
+				items: [
+					{value: 'Gingerbread'},
+					{value: 'Key lime pie'},
+					{value: 'Donut'},
+					{value: 'Biscuit', completed: true},
+					{value: 'Jellybean', completed: true}
+				],
+				findOverlapItem: function(item, dy) {
+					var orect = item.getBoundingClientRect();
+					var overlap = item.nextElementSibling;
+					while (overlap) {
+						var rect = overlap.getBoundingClientRect();
+						if (orect.bottom + dy > rect.top && orect.bottom + dy < rect.bottom) {
+							break;
+						}
+						overlap = overlap.nextElementSibling;
+					}
+					return overlap;
+				},
+				itemDragStartAction: function(e, details, sender) {
+					sender.classList.add('dragging');
+				},
+				itemDragAction: function(e, details, sender) {
+					var dropTarget = this.findOverlapItem(sender, details.dy);
+					if (dropTarget) {
+						dropTarget.style['-webkit-transform'] = 'translateY(-' + details.dy + 'px)';
+					}
+				},
+				itemDropAction: function(e, details, sender) {
+					var dropTarget = this.findOverlapItem(sender, details.dy);
+					sender.classList.remove('dragging');
+					registerLayoutKeyframes('default', [{
+						offset: 0,
+						properties: {
+							layoutWidth: 'from()',
+							layoutHeight: 'from()',
+							layoutTop: 'from()',
+							layoutLeft: 'from()'
+						}
+					}, {
+						offset: 1,
+						properties: {
+							layoutWidth: 'to()',
+							layoutHeight: 'to()',
+							layoutTop: 'to()',
+							layoutLeft: 'to()'
+						}
+					}]);
+					var els = this.querySelectorAll('li');
+					setLayoutTransition(els, 'default', 1);
+					setLayoutEffect(els, 'transform');
+					console.log('drop', sender, dropTarget, details.dy);
+					transitionThis(function() {
+						sender.parentElement.insertBefore(sender, dropTarget.nextSibling);
+					});
+				}
+			});
+		</script>
+	</polymer-element>
+	<todo-app></todo-app>
+</body>
+</html>
