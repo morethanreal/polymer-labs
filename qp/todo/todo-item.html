@@ -28,7 +28,7 @@
 				this.$.draggable.classList.add('dragging');
 			},
 			pointerupAction: function() {
-				this.$.draggable.classList.remove('dragging');
+				// this.$.draggable.classList.remove('dragging');
 			},
 			trackstartAction: function() {
 				this.fire('todo-item-drag-start');
@@ -40,7 +40,7 @@
 			},
 			trackendAction: function(e) {
 				console.log('trackend', e);
-				this.$.draggable.style['-webkit-transform'] = null;
+				// this.$.draggable.style['-webkit-transform'] = null;
 				this.fire('todo-item-drop', e);
 			}
 		});

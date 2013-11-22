@@ -48,23 +48,24 @@
 					{value: 'Biscuit', completed: true},
 					{value: 'Jellybean', completed: true}
 				],
-				findOverlapItem: function(item, dy) {
+				findOverlapItem: function(item, dy, down) {
 					var orect = item.getBoundingClientRect();
 					var overlap = item.nextElementSibling;
 					while (overlap) {
 						var rect = overlap.getBoundingClientRect();
-						if (orect.bottom + dy > rect.top && orect.bottom + dy < rect.bottom) {
+						if (down && (orect.bottom + dy > rect.top && orect.bottom + dy < rect.bottom) || !down && (orect.top + dy > rect.top && orect.top + dy < rect.bottom)) {
 							break;
 						}
 						overlap = overlap.nextElementSibling;
 					}
+					console.log('overlap rect', overlap && overlap.getBoundingClientRect().top);
 					return overlap;
 				},
 				itemDragStartAction: function(e, details, sender) {
 					sender.classList.add('dragging');
 				},
 				itemDragAction: function(e, details, sender) {
-					var dropTarget = this.findOverlapItem(sender, details.dy);
+					var dropTarget = this.findOverlapItem(sender, details.dy, details.ddy > 0);
 					if (dropTarget) {
 						dropTarget.style['-webkit-transform'] = 'translateY(-' + details.dy + 'px)';
 					}
@@ -72,30 +73,30 @@
 				itemDropAction: function(e, details, sender) {
 					var dropTarget = this.findOverlapItem(sender, details.dy);
 					sender.classList.remove('dragging');
-					registerLayoutKeyframes('default', [{
-						offset: 0,
-						properties: {
-							layoutWidth: 'from()',
-							layoutHeight: 'from()',
-							layoutTop: 'from()',
-							layoutLeft: 'from()'
-						}
-					}, {
-						offset: 1,
-						properties: {
-							layoutWidth: 'to()',
-							layoutHeight: 'to()',
-							layoutTop: 'to()',
-							layoutLeft: 'to()'
-						}
-					}]);
-					var els = this.querySelectorAll('li');
-					setLayoutTransition(els, 'default', 1);
-					setLayoutEffect(els, 'transform');
-					console.log('drop', sender, dropTarget, details.dy);
-					transitionThis(function() {
-						sender.parentElement.insertBefore(sender, dropTarget.nextSibling);
-					});
+					// registerLayoutKeyframes('default', [{
+					// 	offset: 0,
+					// 	properties: {
+					// 		layoutWidth: 'from()',
+					// 		layoutHeight: 'from()',
+					// 		layoutTop: 'from()',
+					// 		layoutLeft: 'from()'
+					// 	}
+					// }, {
+					// 	offset: 1,
+					// 	properties: {
+					// 		layoutWidth: 'to()',
+					// 		layoutHeight: 'to()',
+					// 		layoutTop: 'to()',
+					// 		layoutLeft: 'to()'
+					// 	}
+					// }]);
+					// var els = this.querySelectorAll('li');
+					// setLayoutTransition(els, 'default', 1);
+					// setLayoutEffect(els, 'transform');
+					// console.log('drop', sender, dropTarget, details.dy);
+					// transitionThis(function() {
+					// 	sender.parentElement.insertBefore(sender, dropTarget.nextSibling);
+					// });
 				}
 			});
 		</script>
