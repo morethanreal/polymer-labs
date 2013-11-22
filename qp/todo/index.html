@@ -8,6 +8,7 @@
 	<script src="components/platform/platform.js"></script>
 	<link href="components/polymer-ui-elements/basic.css" rel="stylesheet">
 	<script src="../../layoutAnimation/layout-animation.js"></script>
+	<!-- // <script src="../../binding-explorer/binding-explorer.js"></script> -->
 </head>
 <body class="polymer-ui-full-bleed polymer-ui-light-bg polymer-ui-body-text">
 	<polymer-element name="todo-app">
@@ -48,12 +49,15 @@
 					{value: 'Biscuit', completed: true},
 					{value: 'Jellybean', completed: true}
 				],
-				findOverlapItem: function(item, dy, down) {
+				findOverlapItem: function(item, e, down) {
 					var orect = item.getBoundingClientRect();
 					var overlap = item.nextElementSibling;
+					var obottom = orect.bottom + e.dy;
 					while (overlap) {
 						var rect = overlap.getBoundingClientRect();
-						if (down && (orect.bottom + dy > rect.top && orect.bottom + dy < rect.bottom) || !down && (orect.top + dy > rect.top && orect.top + dy < rect.bottom)) {
+						console.log(overlap.textContent, rect.top, rect.bottom);
+						console.log('original', obottom, 'next', rect.top, rect.bottom);
+						if (obottom > rect.top && obottom < rect.bottom) {
 							break;
 						}
 						overlap = overlap.nextElementSibling;
@@ -65,13 +69,13 @@
 					sender.classList.add('dragging');
 				},
 				itemDragAction: function(e, details, sender) {
-					var dropTarget = this.findOverlapItem(sender, details.dy, details.ddy > 0);
+					var dropTarget = this.findOverlapItem(sender, details);
 					if (dropTarget) {
-						dropTarget.style['-webkit-transform'] = 'translateY(-' + details.dy + 'px)';
+						dropTarget.transform('translateY(-' + details.dy + 'px)');
 					}
 				},
 				itemDropAction: function(e, details, sender) {
-					var dropTarget = this.findOverlapItem(sender, details.dy);
+					var dropTarget = this.findOverlapItem(sender, details);
 					sender.classList.remove('dragging');
 					// registerLayoutKeyframes('default', [{
 					// 	offset: 0,
