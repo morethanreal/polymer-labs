@@ -1,0 +1,35 @@
+<link href="../components/polymer-animation/polymer-animation-group.html" rel="import">
+<link href="drop-fade.html" rel="import">
+<polymer-element name="toolbar-drop-fade" extends="polymer-animation-group" attributes="toolbar" on-polymer-animation-end="{{animationEndAction}}">
+	<template>
+		<polymer-animation-group type="par">
+			<template repeat="{{config}}">
+				<drop-fade target="{{target}}" delay="{{delay}}" duration="0.3" fill="forwards"></drop-fade>
+			</template>
+		</polymer-animation-group>
+		<polymer-animation target="{{toolbar}}" fill="forwards">
+			<polymer-animation-keyframe>
+				<polymer-animation-prop name="opacity" value="0"></polymer-animation-prop>
+			</polymer-animation-keyframe>
+		</polymer-animation>
+	</template>
+	<script>
+		Polymer('toolbar-drop-fade', {
+			type: 'seq',
+			toolbar: null,
+			toolbarChanged: function() {
+				if (this.toolbar) {
+					this.config = [];
+					for (var i = 0, c; c = this.toolbar.children[i]; i++) {
+						this.config.push({
+							target: c,
+							delay: 0.1 * i
+						});
+					}
+				} else {
+					this.config = null;
+				}
+			}
+		});
+	</script>
+</polymer-element>

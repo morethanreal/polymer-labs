@@ -1,0 +1,38 @@
+<link href="../components/polymer-animation/polymer-animation-group.html" rel="import">
+<link href="../components/polymer-animation/polymer-fadeout.html" rel="import">
+<polymer-element name="tapped-album-transform" extends="polymer-animation-group" attributes="item destAlbumArt">
+	<template>
+		<polymer-animation target="{{albumArt}}" fill="forwards">
+			<polymer-animation-keyframe>
+				<polymer-animation-prop name="transform" value="translate(0,0) scale({{scale}})">
+			</polymer-animation-keyframe>
+			<polymer-animation-keyframe>
+				<polymer-animation-prop name="transform" value="translate({{transX}},{{transY}}) scale({{scale}})">
+			</polymer-animation-keyframe>
+		</polymer-animation>
+		<polymer-fadeout target="{{albumInfo}}" fill="forwards" duration="1"></polymer-fadeout>
+		<polymer-translate target="{{albumInfo}}" fill="forwards" duration="1" fromX="0" toX="-25%"></polymer-translate>
+	</template>
+	<script>
+		Polymer('tapped-album-transform', {
+			type: 'par',
+			easing: 'ease-in',
+			observe: {
+				item: 'generate',
+				destAlbumArt: 'generate'
+			},
+			generate: function() {
+				if (!this.item || !this.destAlbumArt) {
+					return;
+				}
+				var destRect = this.destAlbumArt.getBoundingClientRect();
+				var rect = this.item.getBoundingClientRect();
+				this.albumArt = this.item.querySelector('.album-art');
+				this.albumInfo = this.item.querySelector('.album-info');
+				this.scale = destRect.width / rect.width;
+				this.transX = (rect.left - destRect.left - 8) * -1 + 'px';
+				this.transY = (rect.top - destRect.top - 8) * -1 + 'px';
+			}
+		});
+	</script>
+</polymer-element>

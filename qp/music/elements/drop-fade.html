@@ -1,0 +1,13 @@
+<link href="../components/polymer-animation/polymer-fadeout.html" rel="import">
+<link href="../components/polymer-animation/polymer-translate.html" rel="import">
+<polymer-element name="drop-fade" extends="polymer-animation-group">
+	<template>
+		<polymer-translate fromY="0" toY="100%" fill="forwards"></polymer-translate>
+		<polymer-fadeout fill="forwards"></polymer-fadeout>
+	</template>
+	<script>
+		Polymer('drop-fade', {
+			type: 'par'
+		});
+	</script>
+</polymer-element>
