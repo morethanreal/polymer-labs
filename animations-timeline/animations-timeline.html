@@ -1,0 +1,106 @@
+<link href="../../components/polymer-animation/web-animations.html" rel="import">
+<polymer-element name="animations-timeline" attributes="animation">
+	<template>
+		<style>
+			.axis path, .axis line, .timeline line {
+				fill: none;
+				stroke: black;
+				stroke-width: .5px;
+			}
+			rect.bar.pargroup {
+				fill: lightblue;
+			}
+			rect.bar.seqgroup {
+				fill: lightgreen;
+			}
+			rect.bar {
+				fill: salmon;
+				-webkit-transition: opacity 0.2s ease-in;
+			}
+		</style>
+		<button on-click="{{expandAction}}">expand</button>
+		<button on-click="{{collapseAction}}">collapse</button>
+		<svg>
+			<g transform="translate(50,50)">
+				<g id="xAxis" class="x axis">
+				</g>
+				<g id="timeline" class="timeline" transform="translate(0, 5)">
+				</g>
+			</g>
+		</svg>
+	</template>
+	<script>
+		Polymer('animations-timeline', {
+			depth: 0,
+			animation: null,
+			ready: function() {
+				this.animation = new ParGroup([
+					new SeqGroup([
+						new Animation(null, [{opacity: 1}, {opacity: 0}], {duration: 1}),
+						new Animation(null, [{opacity: 0}, {opacity: 1}], {duration: 2, delay: 1})
+					]),
+					new Animation(null, [{opacity: 0}, {opacity:1}], {duration: 3})
+				]);
+			},
+			enteredView: function() {
+				var rect = this.getBoundingClientRect();
+				this.width = rect.width - 100;
+				this.x = d3.scale.linear().range([0, this.width]);
+				this.y = 25;
+				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
+			},
+			animationChanged: function() {
+				d3.select(this.$.timeline).selectAll('*').remove();
+				this.x.domain([this.animation.startTime, this.animation.endTime]);
+				d3.select(this.$.xAxis).call(this.xAxis);
+				this.index = 0;
+				this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
+				console.log('animation', this.animation);
+			},
+			depthChanged: function() {
+				d3.select(this.$.timeline).selectAll('*').remove();
+				this.index = 0;
+				this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
+			},
+			buildTimeline: function(anim, g, depth) {
+				console.log('index', this.index);
+				var model = {
+					yOffset: 30 * this.index,
+					x: this.x(anim.startTime + anim.specified.delay),
+					y: 0,
+					width: this.x(anim.activeDuration),
+					cls: ['bar']
+				};
+				this.index += 1;
+				if (anim.type === 'par') {
+					model.cls.push('pargroup');
+				} else if (anim.type === 'seq') {
+					model.cls.push('seqgroup');
+				}
+				var rg = g.append('svg:g').attr('transform', 'translate(0,' + model.yOffset + ')');
+				var rect = rg.append('svg:rect').attr('class', model.cls.join(' ')).attr('x', model.x).attr('width', model.width).attr('height', 25);
+				rect.on('click', function() {
+					console.log(anim);
+					return true;
+				})
+				if (depth < this.depth && anim.children) {
+					var cg = rg.append('svg:g').attr('class', 'collapsible').attr('transform', 'translate(0,-' + model.yOffset + ')');
+					var n = 0;
+					for (var i = 0, c; c = anim.children[i]; i++) {
+						n += this.buildTimeline(c, cg, depth + 1);
+					}
+					if (anim.children.length) {
+						cg.append('svg:line').attr('y2', 25 + 30 * (n)).attr('y1', model.yOffset).attr('x1', -5 * (this.depth - depth)).attr('x2', -5 * (this.depth - depth));
+					}
+				}
+				return (depth < this.depth && anim.children) ? anim.children.length + 1 : 1;
+			},
+			expandAction: function() {
+				this.depth += 1;
+			},
+			collapseAction: function() {
+				this.depth -= 1;
+			}
+		});
+	</script>
+</polymer-element>
