@@ -64,7 +64,7 @@
 				right: 0;
 			}
 			#timing line, #timing path {
-				fill: none;
+				fill: transparent;
 				stroke: white;
 				stroke-width: 1px;
 			}
@@ -85,17 +85,7 @@
 							<line x1="0" y1="100%" x2="100%" y2="0"></line>
 						</svg>
 					</template>
-					<template if="{{model.animation.specified.easing === 'ease-in'}}">
-						<svg id="timing" class="svg-fit">
-							<path d="{{bezier}}"></path>
-						</svg>
-					</template>
-					<template if="{{model.animation.specified.easing === 'ease-out'}}">
-						<svg id="timing" class="svg-fit">
-							<path d="{{bezier}}"></path>
-						</svg>
-					</template>
-					<template if="{{model.animation.specified.easing === 'ease-in-out'}}">
+					<template if="{{bezier}}">
 						<svg id="timing" class="svg-fit">
 							<path d="{{bezier}}"></path>
 						</svg>
@@ -145,6 +135,15 @@
 					this.bezier = 'M0 25 C 0 25, ' + (0.58 * this.width) + ' 0, ' + this.width + ' 0';
 				} else if (specified.easing === 'ease-in-out') {
 					this.bezier = 'M0 25 C ' + (0.42 * this.width) + ' 25, ' + (0.58 * this.width) + ' 0, ' + this.width + ' 0';
+				} else if (specified.easing.indexOf('cubic-bezier') !== -1) {
+					var m = /cubic-bezier\(([0-9.]+), ?([0-9.]+), ?([0-9.]+), ?([0-9.]+)\)/.exec(specified.easing);
+					console.log(m);
+					if (m && m.length === 5) {
+						this.bezier = 'M0 25 C ' + (m[1] * this.width) + ' ' + (1 - m[2]) * 25 + ',' + (m[3] * this.width) + ' ' + (1 - m[4]) * 25 + ',' + this.width + ' 0';
+					}
+					console.log('bezier', specified.easing, this.bezier);
+				} else {
+					this.bezier = null;
 				}
 			},
 			toggleExpandedAction: function() {
