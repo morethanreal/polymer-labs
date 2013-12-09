@@ -29,22 +29,36 @@
 				-webkit-transform: translateX({{x}}px);
 				padding: 4px;
 				font-size: 14px;
-				background-color: salmon;
 				position: relative;
 			}
-			.pargroup #bar {
+			#bar-container > div {
+				background-color: salmon;
+			}
+			#bar-container.pargroup > div {
 				background-color: lightblue;
 			}
-			.seqgroup #bar {
+			#bar-container.seqgroup > div {
 				background-color: lightgreen;
 			}
-			#fill line {
-				fill: none;
-				stroke: salmon;
-				stroke-width: 2px;
+			#fillBackwards, #fillForwards {
+				opacity: 0.4;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				display: inline-block;
+				box-sizing: border-box;
+				height: 25px;
 			}
-			#fill line[hidden] {
-				display: none;
+			#fillBackwards[hidden], #fillForwards[hidden] {
+				opacity: 0;
+			}
+			#fillBackwards {
+				left: 0;
+				width: {{x}}px;
+			}
+			#fillForwards {
+				left: {{end}}px;
+				right: 0;
 			}
 			.pargroup #fill line {
 				stroke: lightblue;
@@ -67,16 +81,14 @@
 				<span id="expandBtn" on-click="{{toggleExpandedAction}}">&nbsp;</span>
 			</template>
 			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq'} | tokenList }}">
-				<svg id="fill" class="svg-fit">
-					<line hidden?="{{!fillBackwards}}" x1="0" y1="100%" x2="{{x}}" y2="100%"></line>
-					<line hidden?="{{!fillForwards}}" x1="{{end}}" y1="0" x2="100%" y2="0"></line>
-				</svg>
+				<div id="fillBackwards" hidden?="{{!fillBackwards}}"></div>
 				<div id="bar">
 					<svg id="timing" class="svg-fit">
 						<line x1="0" y1="100%" x2="100%" y2="0"></line>
 					</svg>
 					{{model.animation.type}} {{model.animation.children.length}}
 				</div>
+				<div id="fillForwards" hidden?="{{!fillForwards}}"></div>
 			</div>
 		</div>
 		<template if="{{model.expanded}}">
