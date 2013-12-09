@@ -28,6 +28,7 @@
 		Polymer('animations-timeline', {
 			depth: 0,
 			animation: null,
+			/*
 			ready: function() {
 				this.animation = new ParGroup([
 					new SeqGroup([
@@ -37,6 +38,7 @@
 					new Animation(null, [{opacity: 0}, {opacity:1}], {duration: 3, easing: 'ease-in-out'})
 				], {easing: 'linear'});
 			},
+			*/
 			enteredView: function() {
 				var rect = this.getBoundingClientRect();
 				this.width = rect.width - 32 - 23;
@@ -45,12 +47,17 @@
 				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
 			},
 			animationChanged: function() {
+				var animation = this.animation.animation;
+				console.log(this.animation, this.animation.animation);
+				if (!animation) {
+					return;
+				}
 				d3.select(this.$.timeline).selectAll('*').remove();
-				this.x.domain([this.animation.startTime, this.animation.endTime]);
+				this.x.domain([animation.startTime, animation.endTime]);
 				d3.select(this.$.xAxis).call(this.xAxis);
 				this.index = 0;
-				this.buildModel(this.animation);
-				console.log('animation', this.animation);
+				this.buildModel(animation);
+				console.log('animation', animation);
 			},
 			depthChanged: function() {
 				d3.select(this.$.timeline).selectAll('*').remove();
@@ -58,7 +65,7 @@
 			},
 			buildModel: function(anim) {
 				this.model = {
-					animation: this.animation,
+					animation: anim,
 					expanded: false
 				}
 			},
@@ -78,7 +85,6 @@
 				}
 			},
 			clickAction: function(e, detail, sender) {
-				console.log('click', detail, detail.selected);
 				if (this.selectedItem && this.selectedItem.selected && this.selectedItem !== detail) {
 					this.selectedItem.selected = false;
 				}
