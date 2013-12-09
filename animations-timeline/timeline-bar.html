@@ -1,0 +1,101 @@
+<link href="../../components/polymer-flex-layout/polymer-flex-layout.html" rel="import">
+<polymer-element name="timeline-bar" attributes="model xscale parentx">
+	<template>
+		<style>
+			:host {
+				display: block;
+				margin: 5px 0;
+			}
+			.svg-fit {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: -25px;
+				width: 100%;
+				height: 25px;
+			}
+			#expandBtn {
+				display: inline-block;
+				width: 22px;
+			}
+			#bar-container {
+				position: relative;
+			}
+			#bar {
+				display: inline-block;
+				box-sizing: border-box;
+				width: {{width}}px;
+				height: 25px;
+				-webkit-transform: translateX({{x}}px);
+				padding: 4px;
+				font-size: 14px;
+				background-color: salmon;
+				position: relative;
+			}
+			.pargroup #bar {
+				background-color: lightblue;
+			}
+			.seqgroup #bar {
+				background-color: lightgreen;
+			}
+			#fill line {
+				fill: none;
+				stroke: salmon;
+				stroke-width: 2px;
+			}
+			.pargroup #fill line {
+				stroke: lightblue;
+			}
+			.seqgroup #fill line {
+				stroke: lightgreen;
+			}
+			#timing line, #timing path {
+				fill: none;
+				stroke: white;
+				stroke-width: 1px;
+			}
+		</style>
+		<div>
+			<polymer-flex-layout></polymer-flex-layout>
+			<template if="{{model.animation.type}}">
+				<span id="expandBtn" on-click="{{toggleExpandedAction}}"><template if="{{model.expanded}}">&#x25be;</template><template if="{{!model.expanded}}">&#x25b8;</template></span>
+			</template>
+			<template if="{{!model.animation.type}}">
+				<span id="expandBtn" on-click="{{toggleExpandedAction}}">&nbsp;</span>
+			</template>
+			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq'} | tokenList }}">
+				<svg id="fill" class="svg-fit">
+					<line x1="0" y1="100%" x2="{{x}}" y2="100%"></line>
+					<line x1="{{end}}" y1="0" x2="100%" y2="0"></line>
+				</svg>
+				<div id="bar">
+					<svg id="timing" class="svg-fit">
+						<line x1="0" y1="100%" x2="100%" y2="0"></line>
+					</svg>
+					{{model.animation.type}} {{model.animation.children.length}}
+				</div>
+			</div>
+		</div>
+		<template if="{{model.expanded}}">
+			<template repeat="{{c in model.children}}">
+				<timeline-bar model="{{c}}" xscale="{{xscale}}" parentx="{{x}}"></timeline-bar>
+			</template>
+		</template>
+	</template>
+	<script>
+		Polymer('timeline-bar', {
+			parentx: 0,
+			observe: {
+				'model.animation.activeDuration': 'modelChanged',
+			},
+			modelChanged: function() {
+				this.width = this.xscale(this.model.animation.activeDuration);
+				this.x = this.parentx + this.xscale(this.model.animation.startTime + this.model.animation.specified.delay);
+				this.end = this.xscale(this.model.animation.endTime);
+			},
+			toggleExpandedAction: function() {
+				this.fire('timeline-bar-toggle-expand', this.model);
+			}
+		});
+	</script>
+</polymer-element>

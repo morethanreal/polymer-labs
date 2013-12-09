@@ -1,7 +1,9 @@
 <link href="../../components/polymer-animation/web-animations.html" rel="import">
+<link href="timeline-bar.html" rel="import">
 <polymer-element name="animations-timeline" attributes="animation">
 	<template>
 		<style>
+			/*
 			.axis path, .axis line, .timeline line {
 				fill: none;
 				stroke: black;
@@ -17,9 +19,15 @@
 				fill: salmon;
 				-webkit-transition: opacity 0.2s ease-in;
 			}
+			*/
+			#container {
+				padding: 16px;
+			}
 		</style>
-		<button on-click="{{expandAction}}">expand</button>
-		<button on-click="{{collapseAction}}">collapse</button>
+		<div id="container">
+			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}"></timeline-bar>
+		</div>
+		<!--
 		<svg>
 			<g transform="translate(50,50)">
 				<g id="xAxis" class="x axis">
@@ -28,6 +36,7 @@
 				</g>
 			</g>
 		</svg>
+		-->
 	</template>
 	<script>
 		Polymer('animations-timeline', {
@@ -44,7 +53,7 @@
 			},
 			enteredView: function() {
 				var rect = this.getBoundingClientRect();
-				this.width = rect.width - 100;
+				this.width = rect.width - 32 - 40;
 				this.x = d3.scale.linear().range([0, this.width]);
 				this.y = 25;
 				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
@@ -54,13 +63,41 @@
 				this.x.domain([this.animation.startTime, this.animation.endTime]);
 				d3.select(this.$.xAxis).call(this.xAxis);
 				this.index = 0;
-				this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
+				this.buildModel(this.animation);
+				// this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
 				console.log('animation', this.animation);
 			},
 			depthChanged: function() {
 				d3.select(this.$.timeline).selectAll('*').remove();
 				this.index = 0;
-				this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
+				// this.buildTimeline(this.animation, d3.select(this.$.timeline), 0);
+			},
+			buildModel: function(anim) {
+				this.model = {
+					animation: this.animation,
+					expanded: false
+				}
+			},
+			expandAction: function(e, detail, sender) {
+				var animation = detail;
+				animation.expanded = !animation.expanded;
+				if (animation.expanded) {
+					animation.children = [];
+					Array.prototype.forEach.call(animation.animation.children, function(c) {
+						animation.children.push({
+							animation: c,
+							expanded: false
+						});
+					});
+				} else {
+					animation.children = null;
+				}
+			}
+			/*
+			if (anim.type === 'par') {
+				model.cls.push('pargroup');
+			} else if (anim.type === 'seq') {
+				model.cls.push('seqgroup');
 			},
 			buildTimeline: function(anim, g, depth) {
 				console.log('index', this.index);
@@ -101,6 +138,7 @@
 			collapseAction: function() {
 				this.depth -= 1;
 			}
+			*/
 		});
 	</script>
 </polymer-element>
