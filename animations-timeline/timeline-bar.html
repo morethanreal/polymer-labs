@@ -60,12 +60,6 @@
 				left: {{end}}px;
 				right: 0;
 			}
-			.pargroup #fill line {
-				stroke: lightblue;
-			}
-			.seqgroup #fill line {
-				stroke: lightgreen;
-			}
 			#timing line, #timing path {
 				fill: none;
 				stroke: white;
@@ -83,9 +77,26 @@
 			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq'} | tokenList }}">
 				<div id="fillBackwards" hidden?="{{!fillBackwards}}"></div>
 				<div id="bar">
-					<svg id="timing" class="svg-fit">
-						<line x1="0" y1="100%" x2="100%" y2="0"></line>
-					</svg>
+					<template if="{{model.animation.specified.easing === 'linear'}}">
+						<svg id="timing" class="svg-fit">
+							<line x1="0" y1="100%" x2="100%" y2="0"></line>
+						</svg>
+					</template>
+					<template if="{{model.animation.specified.easing === 'ease-in'}}">
+						<svg id="timing" class="svg-fit">
+							<path d="{{bezier}}"></path>
+						</svg>
+					</template>
+					<template if="{{model.animation.specified.easing === 'ease-out'}}">
+						<svg id="timing" class="svg-fit">
+							<path d="{{bezier}}"></path>
+						</svg>
+					</template>
+					<template if="{{model.animation.specified.easing === 'ease-in-out'}}">
+						<svg id="timing" class="svg-fit">
+							<path d="{{bezier}}"></path>
+						</svg>
+					</template>
 					{{model.animation.type}} {{model.animation.children.length}}
 				</div>
 				<div id="fillForwards" hidden?="{{!fillForwards}}"></div>
@@ -109,18 +120,27 @@
 				this.width = this.xscale(this.model.animation.activeDuration);
 				this.x = this.parentx + this.xscale(this.model.animation.startTime + this.model.animation.specified.delay);
 				this.end = this.xscale(this.model.animation.endTime);
-				if (this.model.animation.specified.fill === 'backwards') {
+				var specified = this.model.animation.specified;
+				// fill
+				if (specified.fill === 'backwards') {
 					this.fillBackwards = true;
 					this.fillForwards = false;
-				} else if (this.model.animation.specified.fill === 'forwards') {
+				} else if (specified.fill === 'forwards') {
 					this.fillBackwards = false;
 					this.fillForwards = true;
-				} else if (this.model.animation.specified.fill === 'both') {
+				} else if (specified.fill === 'both') {
 					this.fillBackwards = true;
 					this.fillForwards = true;
 				} else {
 					this.fillBackwards = false;
 					this.fillForwards = false;
+				}
+				if (specified.easing === 'ease-in') {
+					this.bezier = 'M0 25 C ' + (0.42 * this.width) + ' 25, ' + this.width + ' 0, ' + this.width + ' 0';
+				} else if (specified.easing === 'ease-out') {
+					this.bezier = 'M0 25 C 0 25, ' + (0.58 * this.width) + ' 0, ' + this.width + ' 0';
+				} else if (specified.easing === 'ease-in-out') {
+					this.bezier = 'M0 25 C ' + (0.42 * this.width) + ' 25, ' + (0.58 * this.width) + ' 0, ' + this.width + ' 0';
 				}
 			},
 			toggleExpandedAction: function() {
