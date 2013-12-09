@@ -188,7 +188,7 @@
 				</div>
 			</polymer-ui-pages>
 			<polymer-scale id="popoutTransition" target="{{popout.target}}" duration="0.2" easing="{{animation.easing}}" fill="forwards" toX="{{popout.scale}}" toY="{{popout.scale}}"></polymer-scale>
-			<polymer-animation-group id="transition" type="par" on-polymer-animation-end="{{transitionEndAction}}">
+			<polymer-animation-group id="transition" type="par" on-polymer-animation-end="{{transitionEndAction}}" on-polymer-animation-change="{{transitionChangedAction}}">
 				<tapped-album-transform id="tappedItemTransition" duration="1" delay="0.1" fill="both" easing="cubic-bezier(0.6, 0.3, 0, 1)" destAlbumArt="{{$.detailHeaderAlbumArt}}"></tapped-album-transform>
 				<polymer-animation target="{{$.albumListView}}" duration="0.8">
 					<polymer-animation-keyframe>
@@ -278,6 +278,7 @@
 						target: target,
 						scale: this.headerPhotoHeight / this.itemWidth
 					};
+					return;
 					this.async(function() {
 						target.classList.add('popout');
 						this.$.popoutTransition.play();
@@ -327,9 +328,6 @@
 					}
 					this.async(function() {
 						var a = this.$.transition.makeAnimation();
-						console.log('animate!', this.animation, a);
-						this.fire('play-animation-animate', a.clone());
-						return;
 						this.$.transition.play();
 						this.$.transition.player.paused = true;
 						// this.$.transition.player.playbackRate = 0.5;
@@ -338,6 +336,9 @@
 							this.page = 1;
 						}, null, 1000)
 					});
+				},
+				transitionChangedAction: function(e, detail, sender) {
+					this.fire('play-animation-changed', sender.animation);
 				}
 			});
 		</script>
@@ -349,7 +350,8 @@
 	<script>
 		document.addEventListener('WebComponentsReady', function() {
 			var app = document.querySelector('play-music');
-			app.addEventListener('play-animation-animate', function(e) {
+			app.addEventListener('play-animation-changed', function(e) {
+				console.log('changed', e.detail);
 				var timeline = document.querySelector('animations-timeline').animation = e.detail;
 			});
 		})
