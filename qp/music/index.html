@@ -278,7 +278,6 @@
 						target: target,
 						scale: this.headerPhotoHeight / this.itemWidth
 					};
-					return;
 					this.async(function() {
 						target.classList.add('popout');
 						this.$.popoutTransition.play();
@@ -291,12 +290,7 @@
 					this.animate();
 				},
 				detailTapAction: function(e, detail, sender) {
-					this.$.transition.direction = "reverse";
-					this.$.transition.play();
-					this.async(function() {
-						this.shadowRoot.querySelector('.popout').classList.remove('popout');
-						this.page = 0;
-					});
+					this.page = 0;
 				},
 				transitionEndAction: function() {
 				},
@@ -338,7 +332,7 @@
 					});
 				},
 				transitionChangedAction: function(e, detail, sender) {
-					this.fire('play-animation-changed', sender.animation);
+					this.fire('play-animation-changed', sender);
 				}
 			});
 		</script>
@@ -353,6 +347,7 @@
 			app.addEventListener('play-animation-changed', function(e) {
 				console.log('changed', e.detail);
 				var timeline = document.querySelector('animations-timeline').animation = e.detail;
+				var timeline = document.querySelector('animations-timeline').animationChanged();
 			});
 		})
 	</script>
