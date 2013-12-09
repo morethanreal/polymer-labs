@@ -43,6 +43,9 @@
 				stroke: salmon;
 				stroke-width: 2px;
 			}
+			#fill line[hidden] {
+				display: none;
+			}
 			.pargroup #fill line {
 				stroke: lightblue;
 			}
@@ -65,8 +68,8 @@
 			</template>
 			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq'} | tokenList }}">
 				<svg id="fill" class="svg-fit">
-					<line x1="0" y1="100%" x2="{{x}}" y2="100%"></line>
-					<line x1="{{end}}" y1="0" x2="100%" y2="0"></line>
+					<line hidden?="{{!fillBackwards}}" x1="0" y1="100%" x2="{{x}}" y2="100%"></line>
+					<line hidden?="{{!fillForwards}}" x1="{{end}}" y1="0" x2="100%" y2="0"></line>
 				</svg>
 				<div id="bar">
 					<svg id="timing" class="svg-fit">
@@ -85,6 +88,8 @@
 	<script>
 		Polymer('timeline-bar', {
 			parentx: 0,
+			fillBackwards: false,
+			fillForwards: false,
 			observe: {
 				'model.animation.activeDuration': 'modelChanged',
 			},
@@ -92,6 +97,19 @@
 				this.width = this.xscale(this.model.animation.activeDuration);
 				this.x = this.parentx + this.xscale(this.model.animation.startTime + this.model.animation.specified.delay);
 				this.end = this.xscale(this.model.animation.endTime);
+				if (this.model.animation.specified.fill === 'backwards') {
+					this.fillBackwards = true;
+					this.fillForwards = false;
+				} else if (this.model.animation.specified.fill === 'forwards') {
+					this.fillBackwards = false;
+					this.fillForwards = true;
+				} else if (this.model.animation.specified.fill === 'both') {
+					this.fillBackwards = true;
+					this.fillForwards = true;
+				} else {
+					this.fillBackwards = false;
+					this.fillForwards = false;
+				}
 			},
 			toggleExpandedAction: function() {
 				this.fire('timeline-bar-toggle-expand', this.model);

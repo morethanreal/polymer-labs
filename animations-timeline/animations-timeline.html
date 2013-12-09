@@ -53,7 +53,7 @@
 			},
 			enteredView: function() {
 				var rect = this.getBoundingClientRect();
-				this.width = rect.width - 32 - 40;
+				this.width = rect.width - 32 - 23;
 				this.x = d3.scale.linear().range([0, this.width]);
 				this.y = 25;
 				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
