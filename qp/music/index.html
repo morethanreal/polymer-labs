@@ -11,9 +11,11 @@
 	<link href="components/polymer-ui-pages/polymer-ui-pages.html" rel="import">
 	<link href="components/polymer-ui-toolbar/polymer-ui-toolbar.html" rel="import">
 	<link href="components/web-animations-tools/wat-player-controls/wat-player-controls.html" rel="import">
+	<link href="../../animations-timeline/animations-timeline.html" rel="import">
 	<link href="elements/toolbar-drop-fade.html" rel="import">
 	<link href="elements/tapped-album-transform.html" rel="import">
 	<script src="components/platform/platform.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<link href="components/polymer-ui-elements/basic.css" rel="stylesheet">
 	<style>
 		body ^^ polymer-ui-toolbar.play-music-theme {
@@ -23,6 +25,21 @@
 		}
 		body ^^ polymer-ui-toolbar.play-music-theme ^^ polymer-ui-icon {
 			background-position: -72px 0;
+		}
+		play-music {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 400px;
+		}
+		.timeline {
+			position: absolute;
+			top: 0;
+			left: 410px;
+			bottom: 0;
+			right: 0;
+			overflow: auto;
 		}
 	</style>
 </head>
@@ -312,6 +329,8 @@
 					this.async(function() {
 						var a = this.$.transition.makeAnimation();
 						console.log('animate!', this.animation, a);
+						this.fire('play-animation-animate', a.clone());
+						return;
 						this.$.transition.play();
 						this.$.transition.player.paused = true;
 						// this.$.transition.player.playbackRate = 0.5;
@@ -324,6 +343,17 @@
 			});
 		</script>
 	</polymer-element>
-	<play-music class="polymer-ui-fit"></play-music>
+	<play-music></play-music>
+	<div class="timeline">
+		<animations-timeline></animations-timeline>
+	</div>
+	<script>
+		document.addEventListener('WebComponentsReady', function() {
+			var app = document.querySelector('play-music');
+			app.addEventListener('play-animation-animate', function(e) {
+				var timeline = document.querySelector('animations-timeline').animation = e.detail;
+			});
+		})
+	</script>
 </body>
 </html>
