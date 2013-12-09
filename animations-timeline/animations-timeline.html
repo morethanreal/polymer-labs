@@ -1,10 +1,28 @@
-<link href="../../components/polymer-animation/web-animations.html" rel="import">
+<!-- <link href="../../components/polymer-animation/web-animations.html" rel="import"> -->
 <link href="timeline-bar.html" rel="import">
 <polymer-element name="animations-timeline" attributes="animation">
 	<template>
+		<style>
+			#selectedRect {
+				display: none;
+				position: fixed;
+				border: 1px solid red;
+				background-color: red;
+				opacity: 0.4;
+				top: {{selectedRect.top}}px;
+				left: {{selectedRect.left}}px;
+				width: {{selectedRect.width}}px;
+				height: {{selectedRect.height}}px;
+				z-index: 100;
+			}
+			#selectedRect.selected {
+				display: block;
+			}
+		</style>
 		<div id="container">
-			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}"></timeline-bar>
+			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}" on-timeline-bar-click="{{clickAction}}"></timeline-bar>
 		</div>
+		<div id="selectedRect" class="{{ {selected: selectedRect} | tokenList }}"></div>
 	</template>
 	<script>
 		Polymer('animations-timeline', {
@@ -57,6 +75,18 @@
 					});
 				} else {
 					animation.children = null;
+				}
+			},
+			clickAction: function(e, detail, sender) {
+				console.log('click', detail, detail.selected);
+				if (this.selectedItem && this.selectedItem.selected && this.selectedItem !== detail) {
+					this.selectedItem.selected = false;
+				}
+				this.selectedItem = detail;
+				if (detail.selected && detail.model.animation.target) {
+					this.selectedRect = detail.model.animation.target.getBoundingClientRect();
+				} else {
+					this.selectedRect = null;
 				}
 			}
 		});

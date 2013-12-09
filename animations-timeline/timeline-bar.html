@@ -1,4 +1,4 @@
-<link href="../../components/polymer-flex-layout/polymer-flex-layout.html" rel="import">
+<!-- <link href="../../components/polymer-flex-layout/polymer-flex-layout.html" rel="import"> -->
 <polymer-element name="timeline-bar" attributes="model xscale parentx">
 	<template>
 		<style>
@@ -20,6 +20,9 @@
 			}
 			#bar-container {
 				position: relative;
+			}
+			#bar-container.selected {
+				border: 1px solid red;
 			}
 			#bar {
 				display: inline-block;
@@ -74,7 +77,7 @@
 			<template if="{{!model.animation.type}}">
 				<span id="expandBtn" on-click="{{toggleExpandedAction}}">&nbsp;</span>
 			</template>
-			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq'} | tokenList }}">
+			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq', selected: selected} | tokenList }}" on-click="{{clickAction}}">
 				<div id="fillBackwards" hidden?="{{!fillBackwards}}"></div>
 				<div id="bar">
 					<template if="{{model.animation.specified.easing === 'linear'}}">
@@ -113,6 +116,7 @@
 			parentx: 0,
 			fillBackwards: false,
 			fillForwards: false,
+			selected: false,
 			observe: {
 				'model.animation.activeDuration': 'modelChanged',
 			},
@@ -145,6 +149,10 @@
 			},
 			toggleExpandedAction: function() {
 				this.fire('timeline-bar-toggle-expand', this.model);
+			},
+			clickAction: function() {
+				this.selected = !this.selected;
+				this.fire('timeline-bar-click', this);
 			}
 		});
 	</script>
