@@ -3,6 +3,30 @@
 <polymer-element name="animations-timeline" attributes="animation">
 	<template>
 		<style>
+			#controls {
+				position: absolute;
+				top: 0;
+				left: 22px;
+				bottom: 0;
+				right: 0;
+			}
+			#controls line {
+				fill: none;
+				stroke: red;
+				stroke-width: 1px;
+			}
+			#container {
+				position: relative;
+				top: 50px;
+			}
+			#axis {
+				shape-rendering: crispEdges;
+			}
+			#axis path, #axis line {
+				fill: none;
+				stroke: black;
+				stroke-width: .5px;
+			}
 			#selectedRect {
 				display: none;
 				position: fixed;
@@ -22,12 +46,21 @@
 		<div id="container">
 			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}" on-timeline-bar-click="{{clickAction}}"></timeline-bar>
 		</div>
+		<div id="controls">
+			<button on-click="{{playAction}}">play</button>
+			<svg height="100%" on-track="{{sliderAction}}">
+				<line x1="0" y1="0" x2="0" y2="100%" transform="translate({{sliderx}},0)"></line>
+			</svg>
+		</div>
 		<div id="selectedRect" class="{{ {selected: selectedRect} | tokenList }}"></div>
 	</template>
 	<script>
 		Polymer('animations-timeline', {
-			depth: 0,
 			animation: null,
+			sliderx: 0,
+			observe: {
+				'player.currentTime': 'currentTimeChanged'
+			},
 			/*
 			ready: function() {
 				this.animation = new ParGroup([
@@ -45,10 +78,10 @@
 				this.x = d3.scale.linear().range([0, this.width]);
 				this.y = 25;
 				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
+				// d3.select(this.$.axis).transition().call(this.xAxis);
 			},
 			animationChanged: function() {
 				var animation = this.animation.animation;
-				console.log(this.animation, this.animation.animation);
 				if (!animation) {
 					return;
 				}
@@ -57,11 +90,16 @@
 				d3.select(this.$.xAxis).call(this.xAxis);
 				this.index = 0;
 				this.buildModel(animation);
-				console.log('animation', animation);
 			},
-			depthChanged: function() {
-				d3.select(this.$.timeline).selectAll('*').remove();
-				this.index = 0;
+			currentTimeChanged: function() {
+				if (!this.player.paused) {
+					this.sliderx = this.x(this.player.currentTime);
+				}
+			},
+			sliderxChanged: function() {
+				if (this.player.paused) {
+					this.player.currentTime = this.x.invert(this.sliderx);
+				}
 			},
 			buildModel: function(anim) {
 				this.model = {
@@ -94,6 +132,20 @@
 				} else {
 					this.selectedRect = null;
 				}
+			},
+			playAction: function() {
+				this.player = this.animation.play();
+			},
+			sliderAction: function(e, detail, sender) {
+				if (!this.player) {
+					this.player = this.animation.play();
+					this.player.paused = true;
+				}
+				if (!this.player.paused) {
+					this.player.paused = true;
+				}
+				console.log(this.sliderx, e.ddx, e.dx);
+				this.sliderx += e.ddx;
 			}
 		});
 	</script>

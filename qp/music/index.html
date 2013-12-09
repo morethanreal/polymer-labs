@@ -345,7 +345,6 @@
 		document.addEventListener('WebComponentsReady', function() {
 			var app = document.querySelector('play-music');
 			app.addEventListener('play-animation-changed', function(e) {
-				console.log('changed', e.detail);
 				var timeline = document.querySelector('animations-timeline').animation = e.detail;
 				var timeline = document.querySelector('animations-timeline').animationChanged();
 			});
