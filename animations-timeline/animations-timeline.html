@@ -3,6 +3,10 @@
 <polymer-element name="animations-timeline" attributes="animation">
 	<template>
 		<style>
+			:host, svg {
+				-webkit-user-select: none;
+				user-select: none;
+			}
 			#controls {
 				position: absolute;
 				top: 0;
@@ -10,22 +14,31 @@
 				bottom: 0;
 				right: 0;
 			}
-			#controls line {
-				fill: none;
-				stroke: red;
-				stroke-width: 1px;
-			}
 			#container {
 				position: relative;
-				top: 50px;
+				top: 35px;
 			}
 			#axis {
 				shape-rendering: crispEdges;
 			}
+			#axis text {
+				fill: black;
+				stroke: none;
+				font-size: 12px;
+			}
 			#axis path, #axis line {
 				fill: none;
 				stroke: black;
-				stroke-width: .5px;
+				stroke-width: 1px;
+			}
+			#slider line {
+				fill: none;
+				stroke: red;
+				stroke-width: 1px;
+			}
+			#slider circle {
+				fill: red;
+				stroke: none;
 			}
 			#selectedRect {
 				display: none;
@@ -43,14 +56,18 @@
 				display: block;
 			}
 		</style>
-		<div id="container">
-			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}" on-timeline-bar-click="{{clickAction}}"></timeline-bar>
-		</div>
 		<div id="controls">
 			<!-- <button on-click="{{playAction}}">play</button> -->
-			<svg height="100%" on-track="{{sliderAction}}">
-				<line x1="0" y1="0" x2="0" y2="100%" transform="translate({{sliderx}},0)"></line>
+			<svg height="100%">
+				<g id="axis" transform="translate(0,25)"></g>
+				<g id="slider" transform="translate({{sliderx}},0)" on-track="{{sliderAction}}">
+					<line x1="0" y1="0" x2="0" y2="100%"></line>
+					<circle cx="0" cy="25" r="10"></circle>
+				</g>
 			</svg>
+		</div>
+		<div id="container">
+			<timeline-bar model="{{model}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}" on-timeline-bar-click="{{clickAction}}"></timeline-bar>
 		</div>
 		<div id="selectedRect" class="{{ {selected: selectedRect} | tokenList }}"></div>
 	</template>
@@ -78,7 +95,6 @@
 				this.x = d3.scale.linear().range([0, this.width]);
 				this.y = 25;
 				this.xAxis = d3.svg.axis().scale(this.x).orient('top');
-				// d3.select(this.$.axis).transition().call(this.xAxis);
 			},
 			animationChanged: function() {
 				var animation = this.animation.animation;
@@ -87,7 +103,7 @@
 				}
 				d3.select(this.$.timeline).selectAll('*').remove();
 				this.x.domain([animation.startTime, animation.endTime]);
-				d3.select(this.$.xAxis).call(this.xAxis);
+				d3.select(this.$.axis).call(this.xAxis);
 				this.index = 0;
 				this.buildModel(animation);
 			},
