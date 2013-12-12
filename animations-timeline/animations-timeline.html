@@ -40,20 +40,18 @@
 				fill: red;
 				stroke: none;
 			}
-			#selectedRect {
+			#selectedRects {
 				display: none;
+			}
+			#selectedRects.selected {
+				display: block;
+			}
+			#selectedRects div.rect {
 				position: fixed;
 				border: 1px solid red;
 				background-color: red;
-				opacity: 0.4;
-				top: {{selectedRect.top}}px;
-				left: {{selectedRect.left}}px;
-				width: {{selectedRect.width}}px;
-				height: {{selectedRect.height}}px;
+				opacity: 0.3;
 				z-index: 100;
-			}
-			#selectedRect.selected {
-				display: block;
 			}
 		</style>
 		<div id="controls">
@@ -69,7 +67,11 @@
 		<div id="container">
 			<timeline-bar id="timeline" model="{{animation}}" xscale="{{x}}" on-timeline-bar-toggle-expand="{{expandAction}}" on-timeline-bar-click="{{clickAction}}"></timeline-bar>
 		</div>
-		<div id="selectedRect" class="{{ {selected: selectedRect} | tokenList }}"></div>
+		<div id="selectedRects" class="{{ {selected: selectedRects} | tokenList }}">
+			<template repeat="{{selectedRects}}">
+				<div class="rect" style="top: {{top}}px; left: {{left}}px; width: {{width}}px; height: {{height}}px;"></div>
+			</template>
+		</div>
 	</template>
 	<script>
 		Polymer('animations-timeline', {
@@ -78,17 +80,6 @@
 			observe: {
 				'player.currentTime': 'currentTimeChanged'
 			},
-			/*
-			ready: function() {
-				this.animation = new ParGroup([
-					new SeqGroup([
-						new Animation(null, [{opacity: 1}, {opacity: 0}], {duration: 1, easing: 'ease-in'}),
-						new Animation(null, [{opacity: 0}, {opacity: 1}], {duration: 2, delay: 1, easing: 'ease-out'})
-					], {easing: 'linear'}),
-					new Animation(null, [{opacity: 0}, {opacity:1}], {duration: 3, easing: 'ease-in-out'})
-				], {easing: 'linear'});
-			},
-			*/
 			enteredView: function() {
 				var rect = this.getBoundingClientRect();
 				this.width = rect.width - 32 - 23;
@@ -117,19 +108,13 @@
 					this.player.currentTime = this.x.invert(this.sliderx);
 				}
 			},
-			expandAction: function(e, detail, sender) {
-				var animation = detail;
-				animation.expanded = !animation.expanded;
-				if (animation.expanded) {
-					animation.children = [];
-					Array.prototype.forEach.call(animation.animation.children, function(c) {
-						animation.children.push({
-							animation: c,
-							expanded: false
-						});
-					});
-				} else {
-					animation.children = null;
+			getTargetRects: function(rects, anim) {
+				if (anim.childAnimationElements) {
+					Array.prototype.forEach.call(anim.childAnimationElements, function(c) {
+						this.getTargetRects(rects, c);
+					}.bind(this));
+				} else if (anim.target) {
+					this.selectedRects.push(anim.target.getBoundingClientRect());
 				}
 			},
 			clickAction: function(e, detail, sender) {
@@ -137,10 +122,11 @@
 					this.selectedItem.selected = false;
 				}
 				this.selectedItem = detail;
-				if (detail.selected && detail.model.animation.target) {
-					this.selectedRect = detail.model.animation.target.getBoundingClientRect();
+				if (detail.selected) {
+					this.selectedRects = [];
+					this.getTargetRects(this.selectedRects, detail.model);
 				} else {
-					this.selectedRect = null;
+					this.selectedRects = null;
 				}
 			},
 			playAction: function() {
