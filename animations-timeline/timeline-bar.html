@@ -27,9 +27,7 @@
 			#bar {
 				display: inline-block;
 				box-sizing: border-box;
-				width: {{width}}px;
 				height: 25px;
-				-webkit-transform: translateX({{x}}px);
 				padding: 4px;
 				font-size: 14px;
 				position: relative;
@@ -57,10 +55,8 @@
 			}
 			#fillBackwards {
 				left: 0;
-				width: {{x}}px;
 			}
 			#fillForwards {
-				left: {{end}}px;
 				right: 0;
 			}
 			#timing line, #timing path {
@@ -78,8 +74,8 @@
 				<span id="expandBtn" on-click="{{toggleExpandedAction}}">&nbsp;</span>
 			</template>
 			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq', selected: selected} | tokenList }}" on-click="{{clickAction}}">
-				<div id="fillBackwards" hidden?="{{model.animation.specified.fill !== 'backwards' && model.animation.specified.fill !== 'both'}}"></div>
-				<div id="bar">
+				<div id="fillBackwards" hidden?="{{model.animation.specified.fill !== 'backwards' && model.animation.specified.fill !== 'both'}}" style="width: {{x}}px;"></div>
+				<div id="bar" style="width: {{width}}px; -webkit-transform: translateX({{x}}px);">
 					<template if="{{model.animation.specified.easing === 'linear'}}">
 						<svg id="timing" class="svg-fit">
 							<line x1="0" y1="100%" x2="100%" y2="0"></line>
@@ -92,7 +88,7 @@
 					</template>
 					{{model.animation.type}} {{model.animation.children.length}}
 				</div>
-				<div id="fillForwards" hidden?="{{model.animation.specified.fill !== 'forwards' && model.animation.specified.fill !== 'both'}}"></div>
+				<div id="fillForwards" hidden?="{{model.animation.specified.fill !== 'forwards' && model.animation.specified.fill !== 'both'}}" style="left: {{end}}px;"></div>
 			</div>
 		</div>
 		<template if="{{expanded}}">
