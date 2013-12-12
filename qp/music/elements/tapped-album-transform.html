@@ -4,10 +4,10 @@
 	<template>
 		<polymer-animation target="{{albumArt}}" fill="forwards">
 			<polymer-animation-keyframe>
-				<polymer-animation-prop name="transform" value="translate(0,0) scale({{scale}})">
+				<polymer-animation-prop name="transform" value="translate(0,0) scale({{scale}})"></polymer-animation-prop>
 			</polymer-animation-keyframe>
 			<polymer-animation-keyframe>
-				<polymer-animation-prop name="transform" value="translate({{transX}},{{transY}}) scale({{scale}})">
+				<polymer-animation-prop name="transform" value="translate({{transX}},{{transY}}) scale({{scale}})"></polymer-animation-prop>
 			</polymer-animation-keyframe>
 		</polymer-animation>
 		<polymer-fadeout target="{{albumInfo}}" fill="forwards" duration="1"></polymer-fadeout>
