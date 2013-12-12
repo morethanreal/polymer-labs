@@ -1,5 +1,5 @@
 <!-- <link href="../../components/polymer-flex-layout/polymer-flex-layout.html" rel="import"> -->
-<polymer-element name="timeline-bar" attributes="model xscale parentx">
+<polymer-element name="timeline-bar" attributes="model expanded selected xscale parentx">
 	<template>
 		<style>
 			:host {
@@ -72,13 +72,13 @@
 		<div>
 			<polymer-flex-layout></polymer-flex-layout>
 			<template if="{{model.animation.type}}">
-				<span id="expandBtn" on-click="{{toggleExpandedAction}}"><template if="{{model.expanded}}">&#x25be;</template><template if="{{!model.expanded}}">&#x25b8;</template></span>
+				<span id="expandBtn" on-click="{{toggleExpandedAction}}"><template if="{{expanded}}">&#x25be;</template><template if="{{!expanded}}">&#x25b8;</template></span>
 			</template>
 			<template if="{{!model.animation.type}}">
 				<span id="expandBtn" on-click="{{toggleExpandedAction}}">&nbsp;</span>
 			</template>
 			<div id="bar-container" flex class="{{ {pargroup: model.animation.type === 'par', seqgroup: model.animation.type === 'seq', selected: selected} | tokenList }}" on-click="{{clickAction}}">
-				<div id="fillBackwards" hidden?="{{!fillBackwards}}"></div>
+				<div id="fillBackwards" hidden?="{{model.animation.specified.fill !== 'backwards' && model.animation.specified.fill !== 'both'}}"></div>
 				<div id="bar">
 					<template if="{{model.animation.specified.easing === 'linear'}}">
 						<svg id="timing" class="svg-fit">
@@ -92,43 +92,39 @@
 					</template>
 					{{model.animation.type}} {{model.animation.children.length}}
 				</div>
-				<div id="fillForwards" hidden?="{{!fillForwards}}"></div>
+				<div id="fillForwards" hidden?="{{model.animation.specified.fill !== 'forwards' && model.animation.specified.fill !== 'both'}}"></div>
 			</div>
 		</div>
-		<template if="{{model.expanded}}">
-			<template repeat="{{c in model.children}}">
+		<template if="{{expanded}}">
+			<template repeat="{{c in model.childAnimationElements}}">
 				<timeline-bar model="{{c}}" xscale="{{xscale}}" parentx="{{x}}"></timeline-bar>
 			</template>
 		</template>
 	</template>
 	<script>
 		Polymer('timeline-bar', {
+			model: null,
 			parentx: 0,
-			fillBackwards: false,
-			fillForwards: false,
 			selected: false,
+			expanded: false,
 			observe: {
-				'model.animation.activeDuration': 'modelChanged',
+				'model.animation.activeDuration': 'xscaleChanged',
+				'model.animation.startTime': 'xscaleChanged',
+				'model.animation.endTime': 'xscaleChanged',
+				'model.animation.specified.delay': 'xscaleChanged',
+				'xscale': 'xscaleChanged',
+				'model.animation.specified.easing': 'easingChanged'
 			},
-			modelChanged: function() {
+			xscaleChanged: function() {
+				if (!this.model || !this.model.animation) {
+					return;
+				}
 				this.width = this.xscale(this.model.animation.activeDuration);
 				this.x = this.parentx + this.xscale(this.model.animation.startTime + this.model.animation.specified.delay);
 				this.end = this.xscale(this.model.animation.endTime);
+			},
+			easingChanged: function() {
 				var specified = this.model.animation.specified;
-				// fill
-				if (specified.fill === 'backwards') {
-					this.fillBackwards = true;
-					this.fillForwards = false;
-				} else if (specified.fill === 'forwards') {
-					this.fillBackwards = false;
-					this.fillForwards = true;
-				} else if (specified.fill === 'both') {
-					this.fillBackwards = true;
-					this.fillForwards = true;
-				} else {
-					this.fillBackwards = false;
-					this.fillForwards = false;
-				}
 				if (specified.easing === 'ease-in') {
 					this.bezier = 'M0 25 C ' + (0.42 * this.width) + ' 25, ' + this.width + ' 0, ' + this.width + ' 0';
 				} else if (specified.easing === 'ease-out') {
@@ -137,17 +133,15 @@
 					this.bezier = 'M0 25 C ' + (0.42 * this.width) + ' 25, ' + (0.58 * this.width) + ' 0, ' + this.width + ' 0';
 				} else if (specified.easing.indexOf('cubic-bezier') !== -1) {
 					var m = /cubic-bezier\(([0-9.]+), ?([0-9.]+), ?([0-9.]+), ?([0-9.]+)\)/.exec(specified.easing);
-					console.log(m);
 					if (m && m.length === 5) {
 						this.bezier = 'M0 25 C ' + (m[1] * this.width) + ' ' + (1 - m[2]) * 25 + ',' + (m[3] * this.width) + ' ' + (1 - m[4]) * 25 + ',' + this.width + ' 0';
 					}
-					console.log('bezier', specified.easing, this.bezier);
 				} else {
 					this.bezier = null;
 				}
 			},
 			toggleExpandedAction: function() {
-				this.fire('timeline-bar-toggle-expand', this.model);
+				this.expanded = !this.expanded;
 			},
 			clickAction: function() {
 				this.selected = !this.selected;
