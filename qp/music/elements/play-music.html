@@ -1,0 +1,308 @@
+<link href="../components/polymer-animation/polymer-animation.html" rel="import">
+<link href="../components/polymer-animation/polymer-fadein.html" rel="import">
+<link href="../components/polymer-animation/polymer-scale.html" rel="import">
+<link href="../components/polymer-animation/polymer-translate.html" rel="import">
+<link href="../components/polymer-animation/polymer-animation-group.html" rel="import">
+<link href="../components/polymer-flex-layout/polymer-flex-layout.html" rel="import">
+<link href="../components/polymer-ui-icon-button/polymer-ui-icon-button.html" rel="import">
+<link href="../components/polymer-ui-pages/polymer-ui-pages.html" rel="import">
+<link href="../components/polymer-ui-toolbar/polymer-ui-toolbar.html" rel="import">
+<link href="../components/polymer/polymer.html" rel="import">
+<link href="toolbar-drop-fade.html" rel="import">
+<link href="tapped-album-transform.html" rel="import">
+
+<polymer-element name="play-music">
+  <template>
+    <link href="cover.css" rel="stylesheet">
+    <style>
+      polymer-ui-pages {
+        display: block;
+        height: 100%;
+      }
+      #albumListView {
+        z-index: 20;
+      }
+      #detailView {
+        z-index: 10;
+      }
+      .album-list-container {
+        overflow: scroll
+      }
+      .album-list {
+        padding: 8px 12px;
+      }
+      .album-item {
+        display: inline-block;
+        margin: 8px;
+        float: left;
+        overflow: clip;
+        border-bottom: 3px solid rgba(0, 0, 0, 0.05);
+      }
+      .album-info {
+        background: white;
+        padding: 8px;
+      }
+      .album-art {
+        background: #b3b3b3;
+        background-size: contain;
+        background-repeat: none;
+      }
+      .album-art.popout {
+        position: relative;
+        z-index: 10;
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.25);
+      }
+      .album-name {
+        font-weight: bold;
+      }
+      .album-artist {
+        color: #b3b3b3;
+      }
+      .detail-header {
+        position: relative;
+        background: #eeb000;
+      }
+      .detail-header-photo {
+        background-image: url(http://2a56b976980e0793ddee-5cc5435fcbc367bb03f9a415e7067a97.r91.cf2.rackcdn.com/wp-content/uploads/2013/05/boards-of-canada-album-stream.jpg);
+        background-position: 0% 75%;
+        background-size: 150%;
+      }
+      .detail-header-album-art {
+        visibility: hidden;
+        background-color: #b3b3b3;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.25);
+      }
+      .polymer-selected .detail-header-album-art {
+        visibility: visible;
+      }
+      .detail-tracklist-container {
+        overflow: scroll;
+        -webkit-transform-origin: 50% 0%;
+      }
+      .track-item {
+        background: white;
+      }
+      .track-item > polymer-ui-icon-button {
+        float: right;
+      }
+      .track-name {
+        padding: 16px;
+      }
+      .detail-controls-icon {
+        background-size: cover;
+        width: 38px;
+        height: 38px;
+        border-radius: 3px;
+        margin: 8px;
+      }
+      .detail-controls-label {
+        margin: 8px;
+      }
+      .detail-current-track {
+        font-size: 16px;
+      }
+      .detail-artist {
+        font-size: 12px;
+      }
+    </style>
+    <polymer-ui-pages class="polymer-ui-fit" selected="{{page}}">
+      <div id="albumListView">
+        <polymer-flex-layout vertical></polymer-flex-layout>
+        <polymer-ui-toolbar id="albumListToolbar" class="play-music-theme">
+          <polymer-ui-icon-button icon="menu"></polymer-ui-icon-button>
+          <div flex>Play Music</div>
+          <polymer-ui-icon-button icon="favorite"></polymer-ui-icon-button>
+          <polymer-ui-icon-button icon="plus"></polymer-ui-icon-button>
+          <polymer-ui-icon-button icon="search"></polymer-ui-icon-button>
+        </polymer-ui-toolbar>
+        <div flex class="album-list-container">
+          <div class="album-list">
+            <template repeat="{{a in albums}}">
+              <div class="album-item" style="width: {{itemWidth}}px;" on-pointerdown="{{albumPointerDownAction}}" on-pointerup="{{albumPointerUpAction}}" on-tap="{{albumTapAction}}">
+                <div class="album-art album-{{a.cover}}" style="width: {{itemWidth}}px; height: {{itemWidth}}px;"></div>
+                <div class="album-info">
+                  <div class="album-name">{{a.album}}</div>
+                  <div class="album-artist">{{a.artist}}</div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div id="detailView">
+        <polymer-flex-layout vertical></polymer-flex-layout>
+        <div id="detailHeader" class="detail-header" style="height: {{headerHeight}}px;">
+          <div id="detailHeaderPhoto" class="detail-header-photo" style="height: {{headerPhotoHeight}}px;"></div>
+          <div id="detailHeaderAlbumArt" class="detail-header-album-art album-art album-geogaddi" style="width: {{headerPhotoHeight}}px; height: {{headerPhotoHeight}}px" on-tap="{{detailTapAction}}"></div>
+        </div>
+        <div flex id="detailTracklistContainer" class="detail-tracklist-container">
+          <template repeat="{{tracks}}">
+            <div class="track-item">
+              <polymer-ui-icon-button icon="dots"></polymer-ui-icon-button>
+              <div class="track-name">{{}}</div>
+            </div>
+          </template>
+        </div>
+        <polymer-ui-toolbar id="detailControls" class="play-music-theme detail-controls">
+          <div class="detail-controls-icon album-art album-geogaddi"></div>
+          <div flex class="detail-controls-label">
+            <div class="detail-current-track">{{currentTrack}}</div>
+            <div class="detail-artist">{{artist}}</div>
+          </div>
+          <polymer-ui-icon-button icon="columns"></polymer-ui-icon-button>
+        </polymer-ui-toolbar>
+      </div>
+    </polymer-ui-pages>
+    <polymer-scale id="popoutTransition" target="{{popout.target}}" duration="0.2" easing="{{animation.easing}}" fill="forwards" toX="{{popout.scale}}" toY="{{popout.scale}}"></polymer-scale>
+    <polymer-animation-group id="transition" type="par" on-polymer-animation-end="{{transitionEndAction}}" on-polymer-animation-change="{{transitionChangedAction}}">
+      <tapped-album-transform id="tappedItemTransition" duration="1" delay="0.1" fill="both" easing="cubic-bezier(0.6, 0.3, 0, 1)" destAlbumArt="{{$.detailHeaderAlbumArt}}"></tapped-album-transform>
+      <polymer-animation target="{{$.albumListView}}" duration="0.8">
+        <polymer-animation-keyframe>
+          <polymer-animation-prop name="visibility" value="visible"></polymer-animation-prop>
+        </polymer-animation-keyframe>
+      </polymer-animation>
+      <polymer-animation target="{{$.detailView}}" delay="0.2" fill="forwards">
+        <polymer-animation-keyframe>
+          <polymer-animation-prop name="visibility" value="visible"></polymer-animation-prop>
+        </polymer-animation-keyframe>
+      </polymer-animation>
+      <polymer-animation-group type="seq" delay="0.2" easing="{{animation.easing}}" fill="forwards">
+        <polymer-animation-group type="par" fill="forwards">
+          <polymer-translate target="{{$.detailHeader}}" duration="0.7" fill="backwards" fromY="-100%" toY="0"></polymer-translate>
+          <toolbar-drop-fade toolbar="{{$.albumListToolbar}}" fill="forwards"></toolbar-drop-fade>
+        </polymer-animation-group>
+        <polymer-translate target="{{$.detailHeaderPhoto}}" fill="backwards" duration="0.7" fromY="-100%" toY="0"></polymer-translate>
+      </polymer-animation-group>
+      <polymer-animation-group type="seq" xdelay="0.2" easing="{{animation.easing}}">
+        <polymer-animation-group type="par" fill="forwards">
+          <template repeat="{{a in animation.drop}}">
+            <polymer-translate target="{{a.target}}" duration="{{animation.dropDuration}}" delay="{{a.delay}}" fill="forwards" fromY="0" toY="{{a.toY}}"></polymer-translate>
+          </template>
+        </polymer-animation-group>
+        <polymer-animation-group type="par" duration="0.7" fill="backwards">
+          <polymer-animation target="{{$.detailTracklistContainer}}">
+            <polymer-animation-keyframe>
+              <polymer-animation-prop name="transform" value="translateY({{animation.bottomTranslateY}}px) scaleY(1.5)"></polymer-animation-prop>
+            </polymer-animation-keyframe>
+            <polymer-animation-keyframe>
+              <polymer-animation-prop name="transform" value="translateY(0) scaleY(1)"></polymer-animation-prop>
+            </polymer-animation-keyframe>
+          </polymer-animation>
+          <polymer-translate target="{{$.detailControls}}" fromY="{{animation.bottomTranslateY}}px" toY="0"></polymer-translate>
+        </polymer-animation-group>
+      </polymer-animation-group>
+    </polymer-animation-group>
+  </template>
+  <script>
+    Polymer('play-music', {
+      page: 0,
+      albums: [
+        {artist: 'Cut Copy', album: 'In Ghost Colors', cover: 'in-ghost-colors'},
+        {artist: 'Boards of Canada', album: 'Geogaddi', cover: 'geogaddi'},
+        {artist: 'Kanye West', album: 'Yeezus', cover: 'yeezus'},
+        {artist: 'Radiohead', album: 'OK Computer', cover: 'ok-computer'},
+        {artist: 'Madonna', album: 'Like a Virgin', cover: 'like-a-virgin'},
+        {artist: 'New Order', album: 'Technique', cover: 'technique'},
+      ],
+      tracks: [
+        'Ready Lets Go',
+        'Music is Math',
+        'Beware the Friendly Stranger',
+        'Gyroscope',
+        'Dandelion',
+        'Sunshine Recorder',
+        'In the Annexe',
+        'Julie and Candy',
+        'The Smallest Weird Number',
+        '1969',
+        'Energy Warning',
+        'The Beach at Redpoint',
+        'Opening the Mouth',
+        'Alpha and Omega',
+        'I Saw Drones',
+        'The Devil is in the Details',
+        'A is to B as B is to C',
+        'Over the Horizon Radar',
+        'Dawn Chorus',
+        'Diving Station',
+        'You Could Feel the Sky',
+        'Corsair',
+        'Magic Window'
+      ],
+      currentTrack: 'Ready Lets Go',
+      artist: 'Boards of Canada',
+      enteredView: function() {
+        console.log(this.getBoundingClientRect());
+        var rect = this.getBoundingClientRect();
+        this.headerHeight = rect.width * 2 / 3;
+        this.headerPhotoHeight = this.headerHeight * 2 / 3;
+        this.itemWidth = (rect.width - 24 * 3) / 2;
+      },
+      albumPointerDownAction: function(e, detail, sender) {
+        var target = sender.querySelector('.album-art');
+        this.popout = {
+          target: target,
+          scale: this.headerPhotoHeight / this.itemWidth
+        };
+        this.async(function() {
+          target.classList.add('popout');
+          this.$.popoutTransition.play();
+        });
+      },
+      albumPointerUpAction: function(e, detail, sender) {
+      },
+      albumTapAction: function(e, detail, sender) {
+        this.tappedAlbumItem = sender;
+        this.animate();
+      },
+      detailTapAction: function(e, detail, sender) {
+        this.page = 0;
+      },
+      transitionEndAction: function() {
+      },
+      animate: function() {
+        this.$.tappedItemTransition.item = this.tappedAlbumItem;
+        var rect = this.getBoundingClientRect();
+        this.animation = {
+          duration: 1,
+          toolbarDelay: 0.05,
+          easing: 'cubic-bezier(0.6, 0.3, 0.2, 1)',
+          albumArtScale: this.headerPhotoHeight / this.itemWidth,
+          bottomTranslateY: rect.height - this.headerHeight,
+          dropDuration: 0.5,
+          drop: []
+        };
+        var albumItems = this.shadowRoot.querySelectorAll('.album-item');
+        for (var i = 0, item; item = albumItems[i]; i++) {
+          if (i === 6) {
+            break;
+          }
+          if (item === this.tappedAlbumItem) {
+            continue;
+          }
+          this.animation.drop.push({
+            target: item,
+            toY: rect.height + 'px',
+            delay: (5 - i) * 0.1,
+          });
+        }
+        this.async(function() {
+          var a = this.$.transition.makeAnimation();
+          this.$.transition.play();
+          this.$.transition.player.paused = true;
+          // this.$.transition.player.playbackRate = 0.5;
+          this.$.transition.player.paused = false;
+          this.async(function() {
+            this.page = 1;
+          }, null, 1000)
+        });
+      },
+      transitionChangedAction: function(e, detail, sender) {
+        this.fire('play-animation-changed', sender);
+      }
+    });
+  </script>
+</polymer-element>
